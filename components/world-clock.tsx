@@ -98,6 +98,13 @@ export function WorldClock() {
 
   return (
     <div className="space-y-6">
+      {/* Add timezone control */}
+      <TimezoneSelector
+        selectedTimezones={timezones}
+        onAdd={handleAddTimezone}
+        maxTimezones={MAX_TIMEZONES}
+      />
+
       {/* Timezone cards */}
       <div className="flex flex-wrap items-start gap-4">
         {timezones.map((tz, index) => (
@@ -109,11 +116,6 @@ export function WorldClock() {
             canRemove={canRemove}
           />
         ))}
-        <TimezoneSelector
-          selectedTimezones={timezones}
-          onAdd={handleAddTimezone}
-          maxTimezones={MAX_TIMEZONES}
-        />
       </div>
 
       <Separator />
