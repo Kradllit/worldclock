@@ -50,9 +50,9 @@ export function TimezoneCard({
                 {timezone.label}
               </Badge>
             </div>
-            {timeDiff && (
-              <span className="text-xs text-muted-foreground">{timeDiff}</span>
-            )}
+            <span className="text-xs text-muted-foreground h-4">
+              {timeDiff || "\u00A0"}
+            </span>
           </div>
           {canRemove && onRemove && (
             <Button
