@@ -97,7 +97,7 @@ export function WorldClock() {
   const canRemove = timezones.length > MIN_TIMEZONES;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 mb-32">
       {/* Add timezone control */}
       <TimezoneSelector
         selectedTimezones={timezones}
