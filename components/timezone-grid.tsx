@@ -124,13 +124,10 @@ export function TimezoneGrid({
             <div className="w-14 shrink-0 p-3 text-xs font-medium text-muted-foreground flex items-center justify-center">
 
             </div>
-            {timezones.map((tz, index) => (
+            {timezones.map((tz) => (
               <div
                 key={tz.id}
-                className={cn(
-                  "min-w-[90px] flex-1 px-2 flex flex-col items-center justify-center",
-                  index > 0 && "border-l border-border/50"
-                )}
+                className="min-w-[90px] flex-1 p-3 text-center flex flex-col items-center justify-center"
               >
                 <span className="text-xs font-semibold text-foreground">{tz.city}</span>
                 <span className="text-[10px] text-muted-foreground">{tz.label}</span>
@@ -180,12 +177,10 @@ export function TimezoneGrid({
                       )}
                       style={{ fontVariantNumeric: "tabular-nums" }}
                     >
-                      <span>{formatHourShort(targetHour)}</span>
-                      {dayOffset !== 0 && (
-                        <span className="ml-1 text-[9px] text-muted-foreground font-medium">
-                          {getDayName(dayOffset)}
-                        </span>
-                      )}
+                      <span className="w-[32px] text-center">{formatHourShort(targetHour)}</span>
+                      <span className="w-[24px] text-[9px] text-muted-foreground font-medium">
+                        {dayOffset !== 0 ? getDayName(dayOffset) : ""}
+                      </span>
                     </div>
                   );
                 })}
