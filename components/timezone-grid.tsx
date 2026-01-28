@@ -7,7 +7,6 @@ import {
   TimeRange,
   getHourInTimezone,
   formatHourShort,
-  isWorkingHour,
   getDayName,
   getCurrentHour,
 } from "@/lib/timezones";
@@ -133,12 +132,7 @@ export function TimezoneGrid({
               >
                 {/* Reference timezone hour label */}
                 <div
-                  className={cn(
-                    "w-16 shrink-0 border-r p-1 text-xs flex items-center justify-center",
-                    isWorkingHour(hour)
-                      ? "text-foreground font-medium"
-                      : "text-muted-foreground"
-                  )}
+                  className="w-16 shrink-0 border-r p-1 text-xs flex items-center justify-center text-muted-foreground"
                   style={{ fontVariantNumeric: "tabular-nums" }}
                 >
                   {formatHourShort(hour)}
@@ -151,24 +145,17 @@ export function TimezoneGrid({
                     tz.timezone,
                     hour
                   );
-                  const isWorking = isWorkingHour(targetHour);
-
                   return (
                     <div
                       key={tz.id}
                       className={cn(
-                        "min-w-[100px] flex-1 border-r p-1 text-xs flex items-center justify-center gap-1 last:border-r-0 cursor-pointer transition-colors",
-                        isWorking && !inRange && "bg-blue-50 dark:bg-blue-950/30",
-                        inRange && "bg-blue-200 dark:bg-blue-800/50",
-                        isCurrentHour && !inRange && !isWorking && "bg-primary/5"
+                        "min-w-[100px] flex-1 border-r p-1 text-xs flex items-center justify-center gap-1 last:border-r-0 cursor-pointer transition-colors text-muted-foreground",
+                        inRange && "bg-blue-200 dark:bg-blue-800/50 text-foreground",
+                        isCurrentHour && !inRange && "bg-primary/5"
                       )}
                       style={{ fontVariantNumeric: "tabular-nums" }}
                     >
-                      <span
-                        className={cn(
-                          isWorking ? "text-foreground" : "text-muted-foreground"
-                        )}
-                      >
+                      <span>
                         {formatHourShort(targetHour)}
                       </span>
                       {dayOffset !== 0 && (
