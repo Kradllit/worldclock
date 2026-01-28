@@ -20,7 +20,7 @@ interface TimezoneGridProps {
 }
 
 const HOURS = Array.from({ length: 24 }, (_, i) => i);
-const CELL_HEIGHT = 32;
+const CELL_HEIGHT = 40;
 
 export function TimezoneGrid({
   timezones,
@@ -34,11 +34,16 @@ export function TimezoneGrid({
   const [currentHour, setCurrentHour] = useState<number>(
     getCurrentHour(referenceTimezone.timezone)
   );
+  const [currentMinute, setCurrentMinute] = useState<number>(
+    new Date().getMinutes()
+  );
 
   useEffect(() => {
-    const interval = setInterval(() => {
+    const updateTime = () => {
       setCurrentHour(getCurrentHour(referenceTimezone.timezone));
-    }, 60000);
+      setCurrentMinute(new Date().getMinutes());
+    };
+    const interval = setInterval(updateTime, 60000);
     return () => clearInterval(interval);
   }, [referenceTimezone.timezone]);
 
@@ -76,6 +81,10 @@ export function TimezoneGrid({
     return hour >= selectedRange.startHour && hour <= selectedRange.endHour;
   };
 
+  // Calculate the position of the "now" line (header height + hours * cell height + minute offset)
+  const headerHeight = 48;
+  const nowLinePosition = headerHeight + (currentHour * CELL_HEIGHT) + (currentMinute / 60) * CELL_HEIGHT;
+
   return (
     <div className="relative">
       {selectedRange && (
@@ -86,45 +95,56 @@ export function TimezoneGrid({
           </span>
           <button
             onClick={() => onRangeChange(null)}
-            className="text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded"
+            className="text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded px-1"
             aria-label="Clear selection"
           >
             ×
           </button>
         </div>
       )}
-      <ScrollArea className="w-full whitespace-nowrap rounded-lg border">
+      <ScrollArea className="w-full whitespace-nowrap rounded-xl border bg-card">
         <div
           ref={gridRef}
-          className="min-w-full select-none"
+          className="min-w-full select-none relative"
           style={{ touchAction: "manipulation" }}
         >
+          {/* Current time indicator line */}
+          <div
+            className="absolute left-0 right-0 z-20 pointer-events-none flex items-center"
+            style={{ top: nowLinePosition }}
+          >
+            <div className="w-14 flex justify-end pr-1">
+              <div className="w-2 h-2 rounded-full bg-red-500" />
+            </div>
+            <div className="flex-1 h-[2px] bg-red-500" />
+          </div>
+
           {/* Header row */}
-          <div className="sticky top-0 z-10 flex border-b bg-background">
-            <div className="w-16 shrink-0 border-r p-2 text-xs font-medium text-muted-foreground">
-              {referenceTimezone.label}
+          <div className="sticky top-0 z-10 flex bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80" style={{ height: headerHeight }}>
+            <div className="w-14 shrink-0 p-3 text-xs font-medium text-muted-foreground flex items-center justify-center">
+
             </div>
             {timezones.map((tz) => (
               <div
                 key={tz.id}
-                className="min-w-[100px] flex-1 border-r p-2 text-center text-xs font-medium last:border-r-0"
+                className="min-w-[90px] flex-1 p-3 text-center flex flex-col items-center justify-center"
               >
-                {tz.city}
+                <span className="text-xs font-semibold text-foreground">{tz.city}</span>
+                <span className="text-[10px] text-muted-foreground">{tz.label}</span>
               </div>
             ))}
           </div>
 
           {/* Hour rows */}
           {HOURS.map((hour) => {
-            const isCurrentHour = hour === currentHour;
             const inRange = isInRange(hour);
 
             return (
               <div
                 key={hour}
                 className={cn(
-                  "flex border-b last:border-b-0 transition-colors",
-                  isCurrentHour && "bg-primary/5"
+                  "flex transition-colors",
+                  inRange && "bg-blue-100 dark:bg-blue-900/40"
                 )}
                 style={{ height: CELL_HEIGHT }}
                 onMouseDown={() => handleMouseDown(hour)}
@@ -132,14 +152,14 @@ export function TimezoneGrid({
               >
                 {/* Reference timezone hour label */}
                 <div
-                  className="w-16 shrink-0 border-r p-1 text-xs flex items-center justify-center text-muted-foreground"
+                  className="w-14 shrink-0 px-2 text-xs flex items-center justify-end text-muted-foreground"
                   style={{ fontVariantNumeric: "tabular-nums" }}
                 >
                   {formatHourShort(hour)}
                 </div>
 
                 {/* Timezone columns */}
-                {timezones.map((tz) => {
+                {timezones.map((tz, index) => {
                   const { hour: targetHour, dayOffset } = getHourInTimezone(
                     referenceTimezone.timezone,
                     tz.timezone,
@@ -149,17 +169,17 @@ export function TimezoneGrid({
                     <div
                       key={tz.id}
                       className={cn(
-                        "min-w-[100px] flex-1 border-r p-1 text-xs flex items-center justify-center gap-1 last:border-r-0 cursor-pointer transition-colors text-muted-foreground",
-                        inRange && "bg-blue-200 dark:bg-blue-800/50 text-foreground",
-                        isCurrentHour && !inRange && "bg-primary/5"
+                        "min-w-[90px] flex-1 px-2 text-sm flex items-center justify-center gap-1.5 cursor-pointer transition-colors",
+                        inRange
+                          ? "text-blue-700 dark:text-blue-300 font-medium"
+                          : "text-foreground/70 hover:text-foreground hover:bg-muted/50",
+                        index > 0 && "border-l border-border/50"
                       )}
                       style={{ fontVariantNumeric: "tabular-nums" }}
                     >
-                      <span>
-                        {formatHourShort(targetHour)}
-                      </span>
+                      <span>{formatHourShort(targetHour)}</span>
                       {dayOffset !== 0 && (
-                        <span className="text-[10px] text-orange-600 dark:text-orange-400 font-medium">
+                        <span className="text-[10px] text-orange-500 dark:text-orange-400 font-semibold">
                           {getDayName(dayOffset)}
                         </span>
                       )}
