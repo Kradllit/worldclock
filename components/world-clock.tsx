@@ -15,7 +15,7 @@ import {
 
 const STORAGE_KEY = "worldclock-timezones";
 const MIN_TIMEZONES = 2;
-const MAX_TIMEZONES = 5;
+const MAX_TIMEZONES = 6;
 
 function loadSavedTimezones(): TimezoneConfig[] {
   if (typeof window === "undefined") return [];

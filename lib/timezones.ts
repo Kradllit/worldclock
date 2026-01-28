@@ -93,6 +93,12 @@ export const TIMEZONES: TimezoneConfig[] = [
   { id: "johannesburg", city: "Johannesburg", timezone: "Africa/Johannesburg", label: "SAST" },
   { id: "cape-town", city: "Cape Town", timezone: "Africa/Johannesburg", label: "SAST" },
 
+  // Central Asia
+  { id: "bishkek", city: "Bishkek", timezone: "Asia/Bishkek", label: "KGT" },
+  { id: "almaty", city: "Almaty", timezone: "Asia/Almaty", label: "ALMT" },
+  { id: "tashkent", city: "Tashkent", timezone: "Asia/Tashkent", label: "UZT" },
+  { id: "astana", city: "Astana", timezone: "Asia/Almaty", label: "ALMT" },
+
   // South Asia
   { id: "karachi", city: "Karachi", timezone: "Asia/Karachi", label: "PKT" },
   { id: "mumbai", city: "Mumbai", timezone: "Asia/Kolkata", label: "IST" },
