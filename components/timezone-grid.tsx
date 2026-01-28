@@ -114,9 +114,9 @@ export function TimezoneGrid({
             style={{ top: nowLinePosition }}
           >
             <div className="w-14 flex justify-end pr-1">
-              <div className="w-2 h-2 rounded-full bg-red-500" />
+              <div className="w-2 h-2 rounded-full bg-fuchsia-500" />
             </div>
-            <div className="flex-1 h-[2px] bg-red-500" />
+            <div className="flex-1 h-[2px] bg-fuchsia-500" />
           </div>
 
           {/* Header row */}
@@ -144,7 +144,7 @@ export function TimezoneGrid({
                 key={hour}
                 className={cn(
                   "flex transition-colors",
-                  inRange && "bg-blue-100 dark:bg-blue-900/40"
+                  inRange && "bg-pink-100 dark:bg-pink-900/40"
                 )}
                 style={{ height: CELL_HEIGHT }}
                 onMouseDown={() => handleMouseDown(hour)}
@@ -171,7 +171,7 @@ export function TimezoneGrid({
                       className={cn(
                         "min-w-[90px] flex-1 px-2 text-sm flex items-center justify-center gap-1.5 cursor-pointer transition-colors",
                         inRange
-                          ? "text-blue-700 dark:text-blue-300 font-medium"
+                          ? "text-pink-700 dark:text-pink-300 font-medium"
                           : "text-foreground/70 hover:text-foreground hover:bg-muted/50",
                         index > 0 && "border-l border-border/50"
                       )}
