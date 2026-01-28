@@ -169,7 +169,7 @@ export function TimezoneGrid({
                     <div
                       key={tz.id}
                       className={cn(
-                        "min-w-[90px] flex-1 px-2 text-sm flex items-center justify-center gap-1.5 cursor-pointer transition-colors",
+                        "min-w-[90px] flex-1 px-2 text-sm flex items-center justify-center cursor-pointer transition-colors relative",
                         inRange
                           ? "text-pink-700 dark:text-pink-300 font-medium"
                           : "text-foreground/70 hover:text-foreground hover:bg-muted/50",
@@ -179,7 +179,7 @@ export function TimezoneGrid({
                     >
                       <span>{formatHourShort(targetHour)}</span>
                       {dayOffset !== 0 && (
-                        <span className="text-[10px] text-orange-500 dark:text-orange-400 font-semibold">
+                        <span className="absolute right-1 text-[9px] text-muted-foreground font-medium">
                           {getDayName(dayOffset)}
                         </span>
                       )}
