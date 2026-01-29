@@ -2,6 +2,7 @@
 
 import { useRef, useCallback, useEffect, useState } from "react";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { Sunrise, Sunset } from "lucide-react";
 import {
   TimezoneConfig,
   TimeRange,
@@ -10,6 +11,7 @@ import {
   getDayName,
   getCurrentHour,
 } from "@/lib/timezones";
+import { getSunEventForHour, isNightHour } from "@/lib/suncalc";
 import { cn } from "@/lib/utils";
 import { getNow } from "@/lib/time-sync";
 
@@ -173,6 +175,8 @@ export function TimezoneGrid({
                     tz.timezone,
                     hour
                   );
+                  const night = isNightHour(targetHour, tz.timezone, tz.lat, tz.lng);
+                  const sunEvent = getSunEventForHour(targetHour, tz.timezone, tz.lat, tz.lng);
                   return (
                     <div
                       key={tz.id}
@@ -181,12 +185,19 @@ export function TimezoneGrid({
                         inRange
                           ? "text-pink-700 dark:text-pink-300 font-medium"
                           : "text-foreground/70 hover:text-foreground hover:bg-muted/50",
+                        !inRange && night && "bg-muted/40",
                         index > 0 && "border-l border-border/50"
                       )}
                       style={{ fontVariantNumeric: "tabular-nums" }}
                     >
                       <span className="w-[52px] text-right">{formatHourShort(targetHour, use24h)}</span>
-                      <span className="w-[28px] ml-1 text-[9px] text-muted-foreground font-medium">
+                      {sunEvent === "sunrise" && (
+                        <Sunrise className="w-3.5 h-3.5 text-muted-foreground ml-1 shrink-0" />
+                      )}
+                      {sunEvent === "sunset" && (
+                        <Sunset className="w-3.5 h-3.5 text-muted-foreground ml-1 shrink-0" />
+                      )}
+                      <span className={cn("ml-1 text-[9px] text-muted-foreground font-medium", sunEvent ? "w-[14px]" : "w-[28px]")}>
                         {dayOffset !== 0 ? getDayName(dayOffset) : ""}
                       </span>
                     </div>
