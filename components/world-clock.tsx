@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { TimezoneCard } from "./timezone-card";
 import { TimezoneSelector } from "./timezone-selector";
 import { TimezoneGrid } from "./timezone-grid";
+import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import {
   TimezoneConfig,
@@ -12,8 +13,10 @@ import {
   getDefaultTimezoneIds,
   getTimezoneById,
 } from "@/lib/timezones";
+import { syncTime } from "@/lib/time-sync";
 
 const STORAGE_KEY = "worldclock-timezones";
+const FORMAT_KEY = "worldclock-24h";
 const MIN_TIMEZONES = 2;
 const MAX_TIMEZONES = 6;
 
@@ -49,10 +52,16 @@ function saveTimezones(timezones: TimezoneConfig[]) {
 export function WorldClock() {
   const [timezones, setTimezones] = useState<TimezoneConfig[]>([]);
   const [selectedRange, setSelectedRange] = useState<TimeRange | null>(null);
+  const [use24h, setUse24h] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
+    syncTime();
     setTimezones(loadSavedTimezones());
+    try {
+      const saved = localStorage.getItem(FORMAT_KEY);
+      if (saved !== null) setUse24h(JSON.parse(saved));
+    } catch {}
     setIsLoaded(true);
   }, []);
 
@@ -67,6 +76,14 @@ export function WorldClock() {
       if (prev.length >= MAX_TIMEZONES) return prev;
       if (prev.some((tz) => tz.id === timezone.id)) return prev;
       return [...prev, timezone];
+    });
+  }, []);
+
+  const handleToggle24h = useCallback(() => {
+    setUse24h((prev) => {
+      const next = !prev;
+      localStorage.setItem(FORMAT_KEY, JSON.stringify(next));
+      return next;
     });
   }, []);
 
@@ -98,12 +115,34 @@ export function WorldClock() {
 
   return (
     <div className="space-y-6 mb-32">
-      {/* Add timezone control */}
-      <TimezoneSelector
-        selectedTimezones={timezones}
-        onAdd={handleAddTimezone}
-        maxTimezones={MAX_TIMEZONES}
-      />
+      {/* Controls */}
+      <div className="flex items-center gap-3">
+        <TimezoneSelector
+          selectedTimezones={timezones}
+          onAdd={handleAddTimezone}
+          maxTimezones={MAX_TIMEZONES}
+        />
+        <div className="flex items-center rounded-lg border bg-card p-0.5">
+          <Button
+            variant={use24h ? "ghost" : "secondary"}
+            size="sm"
+            className="h-7 px-2.5 text-xs"
+            onClick={!use24h ? undefined : handleToggle24h}
+            aria-pressed={!use24h}
+          >
+            12h
+          </Button>
+          <Button
+            variant={use24h ? "secondary" : "ghost"}
+            size="sm"
+            className="h-7 px-2.5 text-xs"
+            onClick={use24h ? undefined : handleToggle24h}
+            aria-pressed={use24h}
+          >
+            24h
+          </Button>
+        </div>
+      </div>
 
       {/* Timezone cards */}
       <div className="flex flex-wrap items-start gap-4">
@@ -114,6 +153,7 @@ export function WorldClock() {
             referenceTimezone={index > 0 ? referenceTimezone : undefined}
             onRemove={() => handleRemoveTimezone(tz.id)}
             canRemove={canRemove}
+            use24h={use24h}
           />
         ))}
       </div>
@@ -133,6 +173,7 @@ export function WorldClock() {
           selectedRange={selectedRange}
           onRangeChange={setSelectedRange}
           referenceTimezone={referenceTimezone}
+          use24h={use24h}
         />
       </div>
     </div>

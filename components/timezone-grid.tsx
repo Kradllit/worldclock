@@ -11,12 +11,14 @@ import {
   getCurrentHour,
 } from "@/lib/timezones";
 import { cn } from "@/lib/utils";
+import { getNow } from "@/lib/time-sync";
 
 interface TimezoneGridProps {
   timezones: TimezoneConfig[];
   selectedRange: TimeRange | null;
   onRangeChange: (range: TimeRange | null) => void;
   referenceTimezone: TimezoneConfig;
+  use24h?: boolean;
 }
 
 const HOURS = Array.from({ length: 24 }, (_, i) => i);
@@ -27,6 +29,7 @@ export function TimezoneGrid({
   selectedRange,
   onRangeChange,
   referenceTimezone,
+  use24h = false,
 }: TimezoneGridProps) {
   const gridRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -35,13 +38,13 @@ export function TimezoneGrid({
     getCurrentHour(referenceTimezone.timezone)
   );
   const [currentMinute, setCurrentMinute] = useState<number>(
-    new Date().getMinutes()
+    getNow().getMinutes()
   );
 
   useEffect(() => {
     const updateTime = () => {
       setCurrentHour(getCurrentHour(referenceTimezone.timezone));
-      setCurrentMinute(new Date().getMinutes());
+      setCurrentMinute(getNow().getMinutes());
     };
     const interval = setInterval(updateTime, 60000);
     return () => clearInterval(interval);
@@ -90,8 +93,8 @@ export function TimezoneGrid({
       {selectedRange && (
         <div className="absolute -top-8 right-0 z-10 flex items-center gap-2 text-sm">
           <span className="text-muted-foreground">
-            {formatHourShort(selectedRange.startHour)} –{" "}
-            {formatHourShort(selectedRange.endHour)}
+            {formatHourShort(selectedRange.startHour, use24h)} –{" "}
+            {formatHourShort(selectedRange.endHour, use24h)}
           </span>
           <button
             onClick={() => onRangeChange(null)}
@@ -132,7 +135,9 @@ export function TimezoneGrid({
                   index > 0 && "border-l border-border/50"
                 )}
               >
-                <span className="text-xs font-semibold text-foreground">{tz.city}</span>
+                <span className="text-xs font-semibold text-foreground">
+                  {tz.city}
+                </span>
                 <span className="text-[10px] text-muted-foreground">{tz.label}</span>
               </div>
             ))}
@@ -158,7 +163,7 @@ export function TimezoneGrid({
                   className="w-14 shrink-0 px-2 text-xs flex items-center justify-end text-muted-foreground"
                   style={{ fontVariantNumeric: "tabular-nums" }}
                 >
-                  {formatHourShort(hour)}
+                  {formatHourShort(hour, use24h)}
                 </div>
 
                 {/* Timezone columns */}
@@ -180,8 +185,8 @@ export function TimezoneGrid({
                       )}
                       style={{ fontVariantNumeric: "tabular-nums" }}
                     >
-                      <span className="w-[32px] text-center">{formatHourShort(targetHour)}</span>
-                      <span className="w-[24px] text-[9px] text-muted-foreground font-medium">
+                      <span className="w-[52px] text-right">{formatHourShort(targetHour, use24h)}</span>
+                      <span className="w-[28px] ml-1 text-[9px] text-muted-foreground font-medium">
                         {dayOffset !== 0 ? getDayName(dayOffset) : ""}
                       </span>
                     </div>

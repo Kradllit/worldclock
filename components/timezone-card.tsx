@@ -7,16 +7,19 @@ import { Badge } from "@/components/ui/badge";
 import {
   TimezoneConfig,
   formatTimeLarge,
+  formatSeconds,
   formatAmPm,
   formatDate,
   getTimeDifference,
 } from "@/lib/timezones";
+import { getNow } from "@/lib/time-sync";
 
 interface TimezoneCardProps {
   timezone: TimezoneConfig;
   referenceTimezone?: TimezoneConfig;
   onRemove?: () => void;
   canRemove?: boolean;
+  use24h?: boolean;
 }
 
 export function TimezoneCard({
@@ -24,12 +27,13 @@ export function TimezoneCard({
   referenceTimezone,
   onRemove,
   canRemove = true,
+  use24h = false,
 }: TimezoneCardProps) {
-  const [currentTime, setCurrentTime] = useState<Date>(new Date());
+  const [currentTime, setCurrentTime] = useState<Date>(getNow());
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentTime(new Date());
+      setCurrentTime(getNow());
     }, 1000);
     return () => clearInterval(interval);
   }, []);
@@ -45,7 +49,10 @@ export function TimezoneCard({
         <div className="flex items-start justify-between gap-2">
           <div>
             <div className="flex items-center gap-2">
-              <h3 className="font-semibold text-sm">{timezone.city}</h3>
+              <h3 className="font-semibold text-sm">
+                <span className="mr-1">{timezone.flag}</span>
+                {timezone.city}
+              </h3>
               <Badge variant="secondary" className="text-xs">
                 {timezone.label}
               </Badge>
@@ -71,11 +78,19 @@ export function TimezoneCard({
             className="text-4xl font-light tracking-tight"
             style={{ fontVariantNumeric: "tabular-nums" }}
           >
-            {formatTimeLarge(currentTime, timezone.timezone)}
+            {formatTimeLarge(currentTime, timezone.timezone, use24h)}
           </span>
-          <span className="text-lg text-muted-foreground">
-            {formatAmPm(currentTime, timezone.timezone)}
+          <span
+            className="text-xl font-light text-muted-foreground"
+            style={{ fontVariantNumeric: "tabular-nums" }}
+          >
+            :{formatSeconds(currentTime, timezone.timezone)}
           </span>
+          {!use24h && (
+            <span className="text-lg text-muted-foreground">
+              {formatAmPm(currentTime, timezone.timezone)}
+            </span>
+          )}
         </div>
         <p className="text-sm text-muted-foreground mt-1">
           {formatDate(currentTime, timezone.timezone)}
