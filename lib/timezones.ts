@@ -138,10 +138,46 @@ export const TIMEZONES: TimezoneConfig[] = [
   { id: "wellington", city: "Wellington", timezone: "Pacific/Auckland", label: "NZST" },
 ];
 
-export const DEFAULT_TIMEZONE_IDS = ["sf", "chicago", "kyiv"];
+export const FALLBACK_TIMEZONE_IDS = ["sf", "chicago", "kyiv"];
 
 export function getTimezoneById(id: string): TimezoneConfig | undefined {
   return TIMEZONES.find((tz) => tz.id === id);
+}
+
+export function findTimezoneByIANA(iana: string): TimezoneConfig | undefined {
+  return TIMEZONES.find((tz) => tz.timezone === iana);
+}
+
+/**
+ * Returns default timezone IDs based on the user's detected local timezone.
+ * Places the local timezone first, then picks two geographically diverse defaults.
+ */
+export function getDefaultTimezoneIds(): string[] {
+  if (typeof window === "undefined") return FALLBACK_TIMEZONE_IDS;
+
+  try {
+    const localIANA = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const localTz = findTimezoneByIANA(localIANA);
+
+    if (!localTz) return FALLBACK_TIMEZONE_IDS;
+
+    // Pick two companion timezones that differ from the local one
+    const companions = ["sf", "chicago", "kyiv", "london", "tokyo", "sydney"];
+    const picked: string[] = [localTz.id];
+
+    for (const id of companions) {
+      if (picked.length >= 3) break;
+      const tz = getTimezoneById(id);
+      if (tz && tz.timezone !== localTz.timezone) {
+        picked.push(id);
+      }
+    }
+
+    // If we still don't have 3, just return what we have
+    return picked.length >= 2 ? picked : FALLBACK_TIMEZONE_IDS;
+  } catch {
+    return FALLBACK_TIMEZONE_IDS;
+  }
 }
 
 export function getCurrentTimeInTimezone(timezone: string): Date {

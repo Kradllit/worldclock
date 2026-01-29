@@ -9,7 +9,7 @@ import {
   TimezoneConfig,
   TimeRange,
   TIMEZONES,
-  DEFAULT_TIMEZONE_IDS,
+  getDefaultTimezoneIds,
   getTimezoneById,
 } from "@/lib/timezones";
 
@@ -36,7 +36,7 @@ function loadSavedTimezones(): TimezoneConfig[] {
     // Ignore parse errors
   }
 
-  return DEFAULT_TIMEZONE_IDS.map((id) => getTimezoneById(id)).filter(
+  return getDefaultTimezoneIds().map((id) => getTimezoneById(id)).filter(
     (tz): tz is TimezoneConfig => tz !== undefined
   );
 }
